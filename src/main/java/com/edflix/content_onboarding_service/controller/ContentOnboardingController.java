@@ -21,8 +21,8 @@ public class ContentOnboardingController {
 
     private static final Logger logger = LoggerFactory.getLogger(ContentOnboardingController.class);
 
-    @Value("${aws.sqs.content-onboarding-queue-url}")
-    private String contentOnboardingQueueUrl;
+    @Value("${aws.sqs.content-transcoding-queue-url}")
+    private String contentTranscodingQueueUrl;
 
     private final DynamoDbClient dynamoDbClient;
     private final SqsClient sqsClient;
@@ -60,7 +60,7 @@ public class ContentOnboardingController {
         try {
             // Publish to SQS
             SendMessageRequest sendMessageRequest = SendMessageRequest.builder()
-                    .queueUrl(contentOnboardingQueueUrl)
+                    .queueUrl(contentTranscodingQueueUrl)
                     .messageBody(String.format("Content onboarded: {contentId: %s, url: %s, contentProviderId: %s}", uniqueId, url, contentProviderId))
                     .build();
 
