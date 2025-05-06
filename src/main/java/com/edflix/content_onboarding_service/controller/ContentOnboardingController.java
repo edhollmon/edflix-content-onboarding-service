@@ -40,8 +40,9 @@ public class ContentOnboardingController {
             // Store in DynamoDB
             Map<String, AttributeValue> item = new HashMap<>();
             item.put("contentId", AttributeValue.builder().s(uniqueId).build());
-            item.put("url", AttributeValue.builder().s(url).build());
             item.put("contentProviderId", AttributeValue.builder().s(contentProviderId).build());
+            item.put("url", AttributeValue.builder().s(url).build());
+            item.put("status", AttributeValue.builder().s("onboarding").build());
 
             PutItemRequest putItemRequest = PutItemRequest.builder()
                     .tableName("ContentOnboarding")
