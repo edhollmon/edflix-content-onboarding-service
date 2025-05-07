@@ -3,6 +3,10 @@ package com.edflix.content_onboarding_service.controller;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -58,15 +62,26 @@ public class ContentOnboardingController {
         }
 
         try {
+            // Create JSON message body
+            Map<String, String> messageBody = new HashMap<>();
+            messageBody.put("contentId", uniqueId);
+            messageBody.put("url", url);
+            messageBody.put("contentProviderId", contentProviderId);
+
+            String jsonMessageBody = new ObjectMapper().writeValueAsString(messageBody);
+
             // Publish to SQS
             SendMessageRequest sendMessageRequest = SendMessageRequest.builder()
                     .queueUrl(contentTranscodingQueueUrl)
-                    .messageBody(String.format("Content onboarded: {contentId: %s, url: %s, contentProviderId: %s}", uniqueId, url, contentProviderId))
+                    .messageBody(jsonMessageBody)
                     .build();
 
             sqsClient.sendMessage(sendMessageRequest);
             logger.info("Successfully published message to SQS for content ID: {}", uniqueId);
 
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to serialize message body to JSON", e);
+            return ResponseEntity.status(500).body("Failed to onboard content: JSON serialization error");
         } catch (Exception e) {
             logger.error("Failed to publish message to SQS", e);
             return ResponseEntity.status(500).body("Failed to onboard content: SQS error");
