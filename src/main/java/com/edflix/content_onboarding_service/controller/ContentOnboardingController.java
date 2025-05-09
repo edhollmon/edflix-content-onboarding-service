@@ -90,33 +90,4 @@ public class ContentOnboardingController {
 
         return ResponseEntity.ok("Content onboarded successfully with ID: " + uniqueId);
     }
-
-    @PostMapping("/onboard/transcode")
-    public ResponseEntity<String> addTranscode(@RequestParam String contentId, 
-                                                 @RequestParam String resolutionKey, 
-                                                 @RequestParam String resolution, 
-                                                 @RequestParam String url) {
-        try {
-            // Store resolution in DynamoDB
-            Map<String, AttributeValue> item = new HashMap<>();
-            item.put("contentId", AttributeValue.builder().s(contentId).build()); // PK
-            item.put("resolutionKey", AttributeValue.builder().s("RES#" + resolutionKey).build()); // SK
-            item.put("resolution", AttributeValue.builder().s(resolution).build());
-            item.put("url", AttributeValue.builder().s(url).build());
-
-            PutItemRequest putItemRequest = PutItemRequest.builder()
-                    .tableName("ContentOnboarding") // Store in different table if needed
-                    .item(item)
-                    .build();
-
-            dynamoDbClient.putItem(putItemRequest);
-            logger.info("Successfully added resolution for content ID: {}, resolutionKey: {}", contentId, resolutionKey);
-
-        } catch (Exception e) {
-            logger.error("Failed to add resolution to DynamoDB", e);
-            return ResponseEntity.status(500).body("Failed to add resolution: DynamoDB error");
-        }
-
-        return ResponseEntity.ok("Resolution added successfully for content ID: " + contentId + ", resolutionKey: " + resolutionKey);
-    }
 }
