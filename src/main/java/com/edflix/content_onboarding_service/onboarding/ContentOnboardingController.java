@@ -1,4 +1,4 @@
-package com.edflix.content_onboarding_service.controller;
+package com.edflix.content_onboarding_service.onboarding;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
